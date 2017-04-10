@@ -1,3 +1,6 @@
-#' @imports checkmate
-#' @imports BBmisc
-#' @imports stringi
+#' @import checkmate
+#' @import BBmisc
+#' @import methods
+#' @import ParamHelpers
+#' @import stringi
+NULL
