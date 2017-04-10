@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 status = "SUCCESS"
 
-time.out = as.difftime(15, units = "secs")
+time.out = as.difftime(60, units = "mins")
 
 # run id
 id = sample(999999, size = 1)

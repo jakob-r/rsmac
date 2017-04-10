@@ -1,5 +1,17 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
 language: R
 sudo: false
 cache: packages
+
+r:
+  - release
+
+warnings_are_errors: false
+
+before_install:
+   - wget http://www.cs.ubc.ca/labs/beta/Projects/SMAC/smac-v2.10.03-master-778.tar.gz
+   - tar -xvzf smac-v2.10.03-master-778.tar.gz
+   - mkdir -p ~/bin
+   - mv smac-v2.10.03-master-778 ~/bin/smac
+
+after_success:
+   - Rscript -e 'covr::coveralls()'

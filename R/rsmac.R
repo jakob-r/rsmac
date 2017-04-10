@@ -1,14 +1,27 @@
 #' @title Starts SMAC
 #' @description Starts SMAC on the given function, with the given scenario and the given params.
 #' @param fun [\code{smoof_function}]
-#' @param scenario [\code{character}] \cr
+#' @param scenario [\code{list}] \cr
 #'   scenario description
 #' @param params [\code{character}] \cr
-#'   params in pcs format
+#'   Params in pcs format. Default is \code{\link{as.pcs}(getParamSet(fun))}.
+#' @param path.to.smac [\code{character(1)}] \cr
+#'   The directory where the smac binary is located.
+#'   All intermediate files will be saved there.
+#' @examples
+#'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
+#'  res = rsmac(makeBraninFunction(), scenario = scenario)
+#'  best.idx = getOptPathBestIndex(res)
+#'  getOptPathEl(res, best.idx)
+#'  as.data.frame(res)
+#' @return \link[ParamHelpers]{OptPath}
 #' @export
-rsmac = function(fun, scenario, params, path.to.smac = "~/bin/smac") {
+rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac") {
   assertClass(fun, "smoof_function")
   assertList(scenario)
+  if (is.null(params)) {
+    params = as.pcs(obj = getParamSet(fun))
+  }
   assertCharacter(params)
   path.to.smac = path.expand(path.to.smac)
   assertFileExists(file.path(path.to.smac, "smac"))
@@ -85,7 +98,9 @@ rsmac = function(fun, scenario, params, path.to.smac = "~/bin/smac") {
     res$extra = 0
 
     # add things to opt path
-    addOptPathEl(op = opt.path, x = args, y = y, dob = iter, exec.time = res$runtime)
+    args.df = do.call(cbind.data.frame, args)
+    x = dfRowToList(args.df, par.set = getParamSet(fun), i = 1)
+    addOptPathEl(op = opt.path, x = x, y = y, dob = iter, exec.time = res$runtime)
 
     # 3 write result in file (rscript will read result and return it to SMAC)
     catf("Save results in file: %s", file.path(rsmac.dir, sprintf("result_%s.rds",id)))

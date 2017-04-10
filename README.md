@@ -8,3 +8,9 @@ use smac for r functions
 ``` r
 devtools::install_github("jakob-r/mlrHyperopt")
 ```
+
+## Notes
+
+* This package is just testet on purely numeric functions so far.
+* The interaction with smac works completely over the file system.
+* Any help is welcome!
