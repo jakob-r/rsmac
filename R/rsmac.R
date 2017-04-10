@@ -8,6 +8,12 @@
 #' @param path.to.smac [\code{character(1)}] \cr
 #'   The directory where the smac binary is located.
 #'   All intermediate files will be saved there.
+#' @param cl.args [\code{list}] \cr
+#'   CL arguments that should be passed when calling \code{./smac}.
+#' @param id.smac.run [\code{character(1)}] \cr
+#'   You might want to overrride the automaticly generated ID to do restarts or parallel optimizations on the exact same scenario.
+#' @param cleanup [\code{logical(1)}] \cr
+#'   Should all files be deleted after the run?
 #' @examples
 #'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
 #'  res = rsmac(makeBraninFunction(), scenario = scenario)
@@ -16,9 +22,11 @@
 #'  as.data.frame(res)
 #' @return \link[ParamHelpers]{OptPath}
 #' @export
-rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac") {
+rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE) {
   assertClass(fun, "smoof_function")
   assertList(scenario)
+  assertFlag(cleanup)
+
   if (is.null(params)) {
     params = as.pcs(obj = getParamSet(fun))
   }
@@ -26,18 +34,29 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac") {
   path.to.smac = path.expand(path.to.smac)
   assertFileExists(file.path(path.to.smac, "smac"))
 
-  id.smac.run = stri_paste(format(Sys.time(), "%F_%H-%M"),"_",sample(999999, 1))
+  # generate unqiue scenario name and sub folders
+  if (is.null(id.smac.run))
+    id.smac.run = stri_paste(format(Sys.time(), "%F_%H-%M"),"_",sample(999999, 1))
+  assertString(id.smac.run)
   rsmac.dir = file.path(path.to.smac, sprintf("rsmac_%s", id.smac.run))
   dir.create(rsmac.dir)
   scenario.name = sprintf("rsmac-scenario-%s", id.smac.run)
   scenario.file = file.path(rsmac.dir, sprintf("%s.txt", scenario.name))
 
   # write scenario file
-  scenario[["pcs-file"]] = file.path(rsmac.dir, "rsmac-params.pcs")
-  scenario[["algo"]] = sprintf("%s -id.smac.run %s", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run)
+  default.scenario = list(
+    "pcs-file" = file.path(rsmac.dir, "rsmac-params.pcs"),
+    algo = sprintf("%s -id.smac.run %s", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run)
+  )
+  scenario = insert(default.scenario, scenario)
   writeLines(
     stri_paste(names(scenario), scenario, sep = " = "),
     con = scenario.file)
+
+  # deal with CL args
+  default.cl.args = list("scenario-file" = scenario.file)
+  cl.args = insert(default.cl.args, cl.args)
+  assertList(cl.args, min.len = 1L)
 
   # write params file
   writeLines(params, con = file.path(rsmac.dir, "rsmac-params.pcs"))
@@ -48,13 +67,24 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac") {
   system(sprintf("chmod +x %s", file.path(rsmac.dir, "smac_wrapper.R")))
   # Sys.chmod("./smac_wrapper.R", mode = "0755")
 
+  # take care of cleanup
+  if (cleanup) {
+    on.exit({
+      unlink(rsmac.dir, recursive = TRUE)
+      unlink(file.path(path.to.smac, "smac-output", scenario.name), recursive = TRUE)
+    }, add = TRUE)
+  }
+
   # prepare OptPath
   opt.path = makeOptPathDF(par.set = getParamSet(fun), y.names = "y", minimize = shouldBeMinimized(fun), include.exec.time = TRUE)
 
   # start smac
-  command = sprintf("(cd %s && ./smac --scenario-file %s > %s)", path.to.smac, scenario.file, file.path(rsmac.dir, "rsmac-output.txt"))
+  command = sprintf(
+    "(cd %s && ./smac --%s > %s)",
+    path.to.smac,
+    stri_paste(names(cl.args), cl.args, collapse = " --", sep = " "),
+    file.path(rsmac.dir, "rsmac-output.txt"))
   system(command, wait=FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE, intern = FALSE)
-
   # check if there already was an error
   Sys.sleep(1)
   log.lines = readLines(file.path(rsmac.dir, "rsmac-output.txt"))
@@ -69,13 +99,19 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac") {
     # 1 wait for input from rscript via file system
     catf("Waiting for new arguments from SMAC")
     args.file = character()
+    start.time = Sys.time()
     while (length(args.file) == 0) {
-      smac.finished = smacFinished(path.to.smac, scenario.name)
+      if (cleanup) {
+        smac.finished = smacFinished(path.to.smac, scenario.name)
+      } else {
+        smac.finished = (difftime(Sys.time(), start.time) > as.difftime(30, units = "secs"))
+      }
       if (smac.finished) break()
       Sys.sleep(1)
       args.file = list.files(path = rsmac.dir, pattern = "args_\\d*\\.rds", full.names = TRUE)
     }
     if (smac.finished) break()
+    args.file = args.file[1]
     id = stri_extract_all(basename(args.file), regex = "(\\d+)")[[1]]
     catf("Found new arguments in file: %s", args.file)
     args = readRDS(args.file)

@@ -16,6 +16,8 @@ Imports:
   checkmate,
   BBmisc,
   stringi
+Suggests:
+  parallelMap
 LazyData: true
 Suggests: testthat
 RoxygenNote: 6.0.1
