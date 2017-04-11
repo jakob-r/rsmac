@@ -14,7 +14,7 @@ rsmac:::installSmac()
 
 ## Notes
 
-* This package is just testet on purely numeric functions so far.
-* This package is desgined for Unix systems.
+* This package is just tested on purely numeric functions so far.
+* This package is designed for Unix systems.
 * The interaction with smac works completely over the file system.
 * Any help is welcome!
