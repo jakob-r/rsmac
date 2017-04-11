@@ -1,6 +1,6 @@
 context("rsmac")
 
-test_that("very works in parallel", {
+test_that("rsmac works in parallel", {
   fn.sleep = makeSingleObjectiveFunction(
     fn = function(x) {
       Sys.sleep(sum(x^2) + Sys.getpid()%%4)

@@ -1,3 +1,4 @@
+#' @import utils
 installSmac = function(dest.path = "~/bin/smac", src = "http://www.cs.ubc.ca/labs/beta/Projects/SMAC/smac-v2.10.03-master-778.tar.gz") {
   catf("I will download and copy smac to :%s", dest.path)
   tdir = tempdir()
