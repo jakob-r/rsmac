@@ -15,11 +15,13 @@
 #' @param cleanup [\code{logical(1)}] \cr
 #'   Should all files be deleted after the run?
 #' @examples
+#'  \dontrun{
 #'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
 #'  res = rsmac(makeBraninFunction(), scenario = scenario)
 #'  best.idx = getOptPathBestIndex(res)
 #'  getOptPathEl(res, best.idx)
 #'  as.data.frame(res)
+#'  }
 #' @return \link[ParamHelpers]{OptPath}
 #' @export
 rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE) {
