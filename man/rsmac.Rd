@@ -36,9 +36,11 @@ Should all files be deleted after the run?}
 Starts SMAC on the given function, with the given scenario and the given params.
 }
 \examples{
+ \dontrun{
  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
  res = rsmac(makeBraninFunction(), scenario = scenario)
  best.idx = getOptPathBestIndex(res)
  getOptPathEl(res, best.idx)
  as.data.frame(res)
+ }
 }
