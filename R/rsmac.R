@@ -113,7 +113,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
       args.file = list.files(path = rsmac.dir, pattern = "args_\\d*\\.rds", full.names = TRUE)
     }
     if (smac.finished) break()
-    args.file = args.file[1]
+    args.file = args.file[Sys.getpid() %% length(args.file) + 1]
     id = stri_extract_all(basename(args.file), regex = "(\\d+)")[[1]]
     catf("Found new arguments in file: %s", args.file)
     args = readRDS(args.file)
