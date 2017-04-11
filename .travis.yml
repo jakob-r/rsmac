@@ -5,6 +5,9 @@ cache: packages
 r:
   - release
 
+r_github_packages:
+  - jimhester/covr
+
 warnings_are_errors: false
 
 before_install:
