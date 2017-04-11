@@ -1,7 +1,6 @@
 context("rsmac")
 
 test_that("very works in parallel", {
-  library(parallelMap)
   fn.sleep = makeSingleObjectiveFunction(
     fn = function(x) {
       Sys.sleep(sum(x^2) + Sys.getpid()%%4)
@@ -12,13 +11,13 @@ test_that("very works in parallel", {
   scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 20)
   cl.args = list("shared-model-mode" = "true", "shared-model-mode-frequency" = "1")
 
-  parallelStartMulticore(cpus = 2)
+  parallelMap::parallelStartMulticore(cpus = 2)
   parsmac = function(seed){
     this.cl.args = c(cl.args, seed = seed)
     rsmac(fn.sleep, scenario = scenario, cl.args = this.cl.args, id.smac.run = "parallel-test", cleanup = FALSE)
   }
-  res = parallelMap(parsmac, 1:2)
-  parallelStop()
+  res = parallelMap::parallelMap(parsmac, 1:2)
+  parallelMap::parallelStop()
   unlink("~/bin/smac/rsmac_parallel-test", recursive = TRUE)
   unlink("~/bin/smac/smac-output/rsmac-scenario-parallel-test", recursive = TRUE)
   expect_class(res[[1]], "OptPath")

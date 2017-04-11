@@ -5,4 +5,5 @@
 #' @import ParamHelpers
 #' @import smoof
 #' @import stringi
+#' @import parallelMap
 NULL

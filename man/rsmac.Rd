@@ -4,7 +4,8 @@
 \alias{rsmac}
 \title{Starts SMAC}
 \usage{
-rsmac(fun, scenario, params = NULL, path.to.smac = "~/bin/smac")
+rsmac(fun, scenario, params = NULL, path.to.smac = "~/bin/smac",
+  cl.args = list(), id.smac.run = NULL, cleanup = TRUE)
 }
 \arguments{
 \item{fun}{[\code{smoof_function}]}
@@ -18,6 +19,15 @@ Params in pcs format. Default is \code{\link{as.pcs}(getParamSet(fun))}.}
 \item{path.to.smac}{[\code{character(1)}] \cr
 The directory where the smac binary is located.
 All intermediate files will be saved there.}
+
+\item{cl.args}{[\code{list}] \cr
+CL arguments that should be passed when calling \code{./smac}.}
+
+\item{id.smac.run}{[\code{character(1)}] \cr
+You might want to overrride the automaticly generated ID to do restarts or parallel optimizations on the exact same scenario.}
+
+\item{cleanup}{[\code{logical(1)}] \cr
+Should all files be deleted after the run?}
 }
 \value{
 \link[ParamHelpers]{OptPath}

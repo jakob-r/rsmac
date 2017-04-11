@@ -15,8 +15,7 @@ Imports:
   methods,
   checkmate,
   BBmisc,
-  stringi
-Suggests:
+  stringi,
   parallelMap
 LazyData: true
 Suggests: testthat
