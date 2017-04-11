@@ -2,6 +2,7 @@
 use smac for r functions
 
 [![Travis-CI Build Status](https://travis-ci.org/jakob-r/rsmac.svg?branch=master)](https://travis-ci.org/jakob-r/rsmac)
+[![Coverage Status](https://coveralls.io/repos/github/jakob-r/rsmac/badge.svg?branch=master)](https://coveralls.io/github/jakob-r/rsmac?branch=master)
 
 ## Installation
 
