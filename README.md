@@ -6,11 +6,14 @@ use smac for r functions
 ## Installation
 
 ``` r
-devtools::install_github("jakob-r/mlrHyperopt")
+devtools::install_github("jakob-r/rsmac")
+# if smac is not installed you can run:
+rsmac:::installSmac()
 ```
 
 ## Notes
 
 * This package is just testet on purely numeric functions so far.
+* This package is desgined for Unix systems.
 * The interaction with smac works completely over the file system.
 * Any help is welcome!
