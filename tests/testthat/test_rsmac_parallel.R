@@ -29,7 +29,7 @@ test_that("rsmac works in parallel", {
     expect_class(res[[i]], "OptPath")
     op1 = as.data.frame(res[[i-1]])
     op2 = as.data.frame(res[[i]])
-    expect_true(nrow(op1), 6)
+    expect_true(nrow(op1) == 6)
     expect_true(all(op1$x1[-1] != op2$x1[-1]))
   }
 })
