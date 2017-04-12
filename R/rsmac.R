@@ -14,6 +14,8 @@
 #'   You might want to overrride the automaticly generated ID to do restarts or parallel optimizations on the exact same scenario.
 #' @param cleanup [\code{logical(1)}] \cr
 #'   Should all files be deleted after the run?
+#' @param par.id [\code{integer(1)}] \cr
+#'   For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.
 #' @examples
 #'  \dontrun{
 #'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
@@ -24,7 +26,7 @@
 #'  }
 #' @return \link[ParamHelpers]{OptPath}
 #' @export
-rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE) {
+rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1) {
   assertClass(fun, "smoof_function")
   assertList(scenario)
   assertFlag(cleanup)
@@ -47,8 +49,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
 
   # write scenario file
   default.scenario = list(
-    "pcs-file" = file.path(rsmac.dir, "rsmac-params.pcs"),
-    algo = sprintf("%s -id.smac.run %s", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run)
+    "pcs-file" = file.path(rsmac.dir, "rsmac-params.pcs")
   )
   scenario = insert(default.scenario, scenario)
   writeLines(
@@ -56,7 +57,10 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     con = scenario.file)
 
   # deal with CL args
-  default.cl.args = list("scenario-file" = scenario.file)
+  default.cl.args = list(
+    "scenario-file" = scenario.file,
+    "algo-exec" = sprintf("'%s -id.smac.run %s -par.id %i'", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run, par.id)
+  )
   cl.args = insert(default.cl.args, cl.args)
   assertList(cl.args, min.len = 1L)
 
@@ -110,11 +114,16 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
       }
       if (smac.finished) break()
       Sys.sleep(1)
-      args.file = list.files(path = rsmac.dir, pattern = "args_\\d*\\.rds", full.names = TRUE)
+      args.file = list.files(
+        path = rsmac.dir,
+        pattern = sprintf("args_%i_\\d*\\.rds", par.id),
+        full.names = TRUE)
     }
     if (smac.finished) break()
     args.file = args.file[Sys.getpid() %% length(args.file) + 1]
-    id = stri_extract_all(basename(args.file), regex = "(\\d+)")[[1]]
+    id = stri_extract_all(
+      basename(args.file),
+      regex = sprintf("(?<=args_%i_)\\d+(?=\\.rds)", par.id))[[1]]
     catf("Found new arguments in file: %s", args.file)
     args = readRDS(args.file)
     args = parseArgs(args, par.set = getParamSet(fun))
@@ -141,8 +150,9 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     addOptPathEl(op = opt.path, x = x, y = y, dob = iter, exec.time = res$runtime)
 
     # 3 write result in file (rscript will read result and return it to SMAC)
-    catf("Save results in file: %s", file.path(rsmac.dir, sprintf("result_%s.rds",id)))
-    saveRDS(res, file = file.path(rsmac.dir, sprintf("result_%s.rds",id)))
+    result.file = sprintf("result_%i_%s.rds", par.id, id)
+    catf("Save results in file: %s", file.path(rsmac.dir, result.file))
+    saveRDS(res, file = file.path(rsmac.dir, result.file))
     iter = iter + 1
   }
   return(opt.path)

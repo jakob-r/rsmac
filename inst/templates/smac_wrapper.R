@@ -13,11 +13,18 @@ args = commandArgs(TRUE)
 stopifnot(args[1] == "-id.smac.run")
 id.smac.run = args[2]
 args = tail(args, -2)
+if (args[1] == "-par.id") {
+  par.id = args[2]
+  args = tail(args, -2)
+} else {
+  par.id = 1
+}
+
 write.path = sprintf("rsmac_%s", id.smac.run)
-saveRDS(object = args, file = file.path(write.path, sprintf("args_%i.rds", id)))
+saveRDS(object = args, file = file.path(write.path, sprintf("args_%s_%i.rds", par.id, id)))
 
 # wait for result file
-result.file = file.path(write.path, sprintf("result_%i.rds", id))
+result.file = file.path(write.path, sprintf("result_%s_%i.rds", par.id, id))
 start.time = Sys.time()
 cat(sprintf("Waiting to recieve result in file: %s\n", result.file))
 while (!file.exists(result.file)) {
