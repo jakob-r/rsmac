@@ -31,6 +31,6 @@ test_that("rsmac works in parallel", {
     op2 = as.data.frame(res[[i]])
     expect_true(nrow(op1) == 5 + 1)
     expect_true(nrow(unique(op1[c("x1","x2")])) == 5)
-    expect_true(all(op1$x1[-1] != op2$x1[-1]))
+    expect_true(all(op1$x1 != op2$x1))
   }
 })

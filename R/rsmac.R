@@ -59,7 +59,8 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   # deal with CL args
   default.cl.args = list(
     "scenario-file" = scenario.file,
-    "algo-exec" = sprintf("'%s -id.smac.run %s -par.id %i'", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run, par.id)
+    "algo-exec" = sprintf("'%s -id.smac.run %s -par.id %i'", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run, par.id),
+    "initial-incumbent" = "RANDOM"
   )
   cl.args = insert(default.cl.args, cl.args)
   assertList(cl.args, min.len = 1L)
