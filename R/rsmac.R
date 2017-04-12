@@ -85,15 +85,16 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   opt.path = makeOptPathDF(par.set = getParamSet(fun), y.names = "y", minimize = shouldBeMinimized(fun), include.exec.time = TRUE)
 
   # start smac
+  cl.output.file = file.path(rsmac.dir, sprintf("rsmac-output-%i.txt", par.id))
   command = sprintf(
     "(cd %s && ./smac --%s > %s)",
     path.to.smac,
     stri_paste(names(cl.args), cl.args, collapse = " --", sep = " "),
-    file.path(rsmac.dir, "rsmac-output.txt"))
+    cl.output.file)
   system(command, wait=FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE, intern = FALSE)
   # check if there already was an error
   Sys.sleep(1)
-  log.lines = readLines(file.path(rsmac.dir, "rsmac-output.txt"))
+  log.lines = readLines(cl.output.file)
   err.lines = stri_detect(log.lines, regex = "ERROR")
   if (any(err.lines)) {
     stopf("There was an error in starting SMAC. \n%s\n fom log: %s", collapse(log.lines[err.lines], sep = "\n"), file.path(rsmac.dir, "rsmac-output.txt"))

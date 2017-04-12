@@ -7,10 +7,11 @@ test_that("very basic rsmac works", {
   })
   fun = makeRosenbrockFunction(2)
   scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 10)
-  params = c("x1 real [-5,10] [0]", "x2 real [-5,10]  [0]")
+  params = c("x1 real [-5,10] [1]", "x2 real [-5,10]  [1]")
   res = rsmac(fun, scenario = scenario, params = params, cleanup = FALSE, id.smac.run = "verybasic")
   expect_class(res, "OptPath")
   expect_equal(getOptPathLength(res), 10+1)
+  expect_equal(nrow(unique(getOptPathX(res))), 10)
 })
 
 test_that("rsmac wit as.pcs works", {
