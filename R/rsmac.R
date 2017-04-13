@@ -116,7 +116,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
         smac.finished = smacFinished(path.to.smac, scenario.name)
       } else {
         smac.finished = (difftime(Sys.time(), start.time) > as.difftime(start.timeout, units = "secs"))
-        if (length(already.read.args.files)==0) {
+        if (smac.finished && length(already.read.args.files)==0) {
           stop("Timeout while waiting for args.file.")
         }
       }
@@ -137,7 +137,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     args = readRDS(args.file)
     already.read.args.files = c(already.read.args.files, args.file)
     args = parseArgs(args, par.set = getParamSet(fun))
-    file.remove(args.file)
+    removeFile(args.file)
 
     res = list(runtime = NULL, y = NULL, extra = NULL)
 
@@ -162,7 +162,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     # 3 write result in file (rscript will read result and return it to SMAC)
     result.file = sprintf("result_%i_%s.rds", par.id, id)
     catf("Save results in file: %s", file.path(rsmac.dir, result.file))
-    saveRDS(res, file = file.path(rsmac.dir, result.file))
+    writeRDS(res, file = file.path(rsmac.dir, result.file))
     iter = iter + 1
   }
   return(opt.path)
