@@ -16,6 +16,8 @@
 #'   Should all files be deleted after the run?
 #' @param par.id [\code{integer(1)}] \cr
 #'   For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.
+#' @param start.timeout [\code{integer(1)}] \cr
+#'   For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.
 #' @examples
 #'  \dontrun{
 #'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
@@ -26,7 +28,7 @@
 #'  }
 #' @return \link[ParamHelpers]{OptPath}
 #' @export
-rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1) {
+rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1, start.timeout = 30) {
   assertClass(fun, "smoof_function")
   assertList(scenario)
   assertFlag(cleanup)
@@ -113,7 +115,10 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
       if (cleanup) {
         smac.finished = smacFinished(path.to.smac, scenario.name)
       } else {
-        smac.finished = (difftime(Sys.time(), start.time) > as.difftime(30, units = "secs"))
+        smac.finished = (difftime(Sys.time(), start.time) > as.difftime(start.timeout, units = "secs"))
+        if (length(already.read.args.files)==0) {
+          stop("Timeout while waiting for args.file.")
+        }
       }
       if (smac.finished) break()
       Sys.sleep(1)
