@@ -102,6 +102,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   }
 
   smac.finished = FALSE
+  already.read.args.files = character()
   iter = 1
   while (!smac.finished) {
     # 1 wait for input from rscript via file system
@@ -120,6 +121,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
         path = rsmac.dir,
         pattern = sprintf("args_%i_\\d*\\.rds", par.id),
         full.names = TRUE)
+      args.file = setdiff(args.file, already.read.args.files) # prevents unfortunaltely not deleted files from beein read again
     }
     if (smac.finished) break()
     args.file = args.file[Sys.getpid() %% length(args.file) + 1]
@@ -128,6 +130,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
       regex = sprintf("(?<=args_%i_)\\d+(?=\\.rds)", par.id))[[1]]
     catf("Found new arguments in file: %s", args.file)
     args = readRDS(args.file)
+    already.read.args.files = c(already.read.args.files, args.file)
     args = parseArgs(args, par.set = getParamSet(fun))
     file.remove(args.file)
 
