@@ -41,8 +41,12 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   assertFileExists(file.path(path.to.smac, "smac"))
 
   # generate unqiue scenario name and sub folders
-  if (is.null(id.smac.run))
-    id.smac.run = stri_paste(format(Sys.time(), "%F_%H-%M"),"_",sample(999999, 1))
+  if (is.null(id.smac.run)) {
+    id.smac.run = stri_paste(
+      format(Sys.time(), "%F_%H-%M"),
+      "_",
+      (sample(999999, size = 1) + as.integer(Sys.time()) + Sys.getpid()) %% 999999)
+  }
   assertString(id.smac.run)
   rsmac.dir = file.path(path.to.smac, sprintf("rsmac_%s", id.smac.run))
   dir.create(rsmac.dir)

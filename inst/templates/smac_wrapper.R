@@ -19,7 +19,7 @@ status = "SUCCESS"
 time.out = as.difftime(60, units = "mins")
 
 # run id
-id = sample(999999, size = 1)
+id = (sample(999999, size = 1) + as.integer(Sys.time()) + Sys.getpid()) %% 999999
 
 cat(sprintf("Start Evaluation with id %i\n", id))
 
