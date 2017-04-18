@@ -5,8 +5,7 @@
 \title{Starts SMAC (alternative)}
 \usage{
 rsmac(fun, scenario, params = NULL, path.to.smac = "~/bin/smac",
-  cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1,
-  start.timeout = 30)
+  cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1)
 }
 \arguments{
 \item{fun}{[\code{smoof_function}]}
@@ -31,9 +30,6 @@ You might want to overrride the automaticly generated ID to do restarts or paral
 Should all files be deleted after the run?}
 
 \item{par.id}{[\code{integer(1)}] \cr
-For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.}
-
-\item{start.timeout}{[\code{integer(1)}] \cr
 For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.}
 }
 \value{

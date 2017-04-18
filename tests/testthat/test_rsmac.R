@@ -10,8 +10,9 @@ test_that("very basic rsmac works", {
   params = c("x1 real [-5,10] [1]", "x2 real [-5,10]  [1]")
   res = rsmac(fun, scenario = scenario, params = params, cleanup = FALSE, id.smac.run = "verybasic")
   expect_class(res, "OptPath")
-  expect_equal(getOptPathLength(res), 10+1)
+  expect_equal(getOptPathLength(res), 10)
   expect_equal(nrow(unique(getOptPathX(res))), 10)
+  expect_equal(apply(getOptPathX(res), 1, fun), getOptPathY(res))
 })
 
 test_that("rsmac wit as.pcs works", {
@@ -23,6 +24,6 @@ test_that("rsmac wit as.pcs works", {
   scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 10)
   res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "autopcs")
   expect_class(res, "OptPath")
-  expect_equal(getOptPathLength(res), 10+1)
+  expect_equal(getOptPathLength(res), 10)
 })
 

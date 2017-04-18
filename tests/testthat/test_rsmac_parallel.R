@@ -1,4 +1,4 @@
-context("rsmac")
+context("rsmac parallel")
 
 test_that("rsmac works in parallel", {
   on.exit({
@@ -15,7 +15,7 @@ test_that("rsmac works in parallel", {
   scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
   cl.args = list("shared-model-mode" = "true", "shared-model-mode-frequency" = "1")
 
-  ncpus = if (identical(Sys.getenv("R_EXPENSIVE_TEST_OK"), "TRUE")) 8 else 2
+  ncpus = if (identical(Sys.getenv("R_EXPENSIVE_TEST_OK"), "TRUE")) 4 else 2
 
   parallelMap::parallelStartMulticore(cpus = ncpus)
   parsmac = function(i){
@@ -25,12 +25,9 @@ test_that("rsmac works in parallel", {
   res = parallelMap::parallelMap(parsmac, i = 1:ncpus)
   parallelMap::parallelStop()
   expect_class(res[[1]], "OptPath")
-  for (i in 2:ncpus) {
-    expect_class(res[[i]], "OptPath")
-    op1 = as.data.frame(res[[i-1]])
-    op2 = as.data.frame(res[[i]])
-    expect_true(nrow(op1) == 5 + 1)
-    expect_true(nrow(unique(op1[c("x1","x2")])) == 5)
-    expect_true(all(op1$x1 != op2$x1))
-  }
+  op.n = sapply(res, getOptPathLength)
+  expect_equal(max(op.n), ncpus * 5L)
+  true.res = res[[which.max(op.n)]]
+  op.df = as.data.frame(true.res)
+  expect_equal(nrow(unique(getOptPathX(true.res))), ncpus * 5L)
 })

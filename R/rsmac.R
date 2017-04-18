@@ -64,7 +64,8 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   # deal with CL args
   default.cl.args = list(
     "scenario-file" = scenario.file,
-    "initial-incumbent" = "RANDOM"
+    "initial-incumbent" = "RANDOM",
+    "num-validation-runs" = 0
   )
   cl.args = insert(default.cl.args, cl.args)
   assertList(cl.args, min.len = 1L)
@@ -77,13 +78,19 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   file.copy(template.file, file.path(rsmac.dir, "smac_wrapper.R"), overwrite = TRUE)
   system(sprintf("chmod +x %s", file.path(rsmac.dir, "smac_wrapper.R")))
 
-  # write register and enviroment for the smac_wrapper
+  # write enviroment for the smac_wrapper
   save.image(file.path(rsmac.dir, "enviroment.RData"))
+
+  # write register for the smac_wrapper
   register = list(
     packages = names(sessionInfo()$otherPkgs),
     fun = fun
     )
   writeRDS(register, file.path(rsmac.dir, "register.rds"))
+
+  # write initial dob file
+  writeRDS(0, file.path(rsmac.dir, "dob_0.rds"))
+
 
   # take care of cleanup
   if (cleanup) {
