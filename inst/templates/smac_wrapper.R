@@ -1,57 +1,53 @@
 #!/usr/bin/env Rscript
 
-writeRDS = function(object, file) {
-  if (file.exists(file))
-    file.remove(file)
-  saveRDS(object, file = file)
-  while(!file.exists(file)) Sys.sleep(0.5)
-  invisible(TRUE)
-}
+# read r environment
+load("enviroment.RData")
 
-removeFile = function(file) {
-  file.remove(file)
-  while(file.exists(file)) Sys.sleep(0.5)
-  invisible(TRUE)
+# load packages
+register = readRDS("register.rds")
+for (package in register$packages) {
+  library(package, character.only = TRUE)
 }
 
 status = "SUCCESS"
 
-time.out = as.difftime(60, units = "mins")
+# find dob
+dob.files = list.files(path = ".", pattern = "dob_\\d+\\.rds")
+old.dob.file = tail(dob.files, 1) 
+dob = readRDS(old.dob.file)
 
 # run id
 id = (sample(999999, size = 1) + as.integer(Sys.time()) + Sys.getpid()) %% 999999
 
-cat(sprintf("Start Evaluation with id %i\n", id))
+cat(sprintf("Start Evaluation with id %i and dob %i\n", id, dob))
 
 # read command line args
 args = commandArgs(TRUE)
-stopifnot(args[1] == "-id.smac.run")
-id.smac.run = args[2]
-args = tail(args, -2)
-if (args[1] == "-par.id") {
-  par.id = args[2]
-  args = tail(args, -2)
-} else {
-  par.id = 1
-}
 
-write.path = sprintf("rsmac_%s", id.smac.run)
-writeRDS(object = args, file = file.path(write.path, sprintf("args_%s_%i.rds", par.id, id)))
+# evaluate function
+fun = register$fun
+args = parseArgs(args, par.set = getParamSet(fun))
 
-# wait for result file
-result.file = file.path(write.path, sprintf("result_%s_%i.rds", par.id, id))
 start.time = Sys.time()
-cat(sprintf("Waiting to recieve result in file: %s\n", result.file))
-while (!file.exists(result.file)) {
-  if (difftime(Sys.time(), start.time) > time.out) {
-    stop (sprintf("Timeout of %s reached", format(time.out)))
-  }
-  Sys.sleep(1)
+y = fun(args)
+end.time = Sys.time()
+if (hasAttributes(y, "exec.time")) {
+  result$runtime = attr(y, "exec.time")
+} else {
+  result$runtime = as.numeric(difftime(end.time, start.time), units = "secs")
 }
+result$y = y
+result$extra = 0
 
-# read result and delete file
-result = readRDS(result.file)
-removeFile(result.file)
+# write opt path line
+args.df = do.call(cbind.data.frame, args)
+x = dfRowToList(args.df, par.set = getParamSet(fun), i = 1)
+op.res = list(x = x, y = y, dob = iter, exec.time = result$runtime)
+writeRDS(op.res, sprintf("res_%i_%i.rds", dob, id))
+
+# increase dob
+writeRDS(dob + 1, sprintf("dob_%i.rds", dob + 1))
+removeFile(old.dob.file)
 
 # Output result for SMAC.
 cat(sprintf("Result for SMAC: %s, %s, 0, %f, %s", status, result$runtime, result$y, result$extra))

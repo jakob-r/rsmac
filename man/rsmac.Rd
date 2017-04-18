@@ -2,7 +2,7 @@
 % Please edit documentation in R/rsmac.R
 \name{rsmac}
 \alias{rsmac}
-\title{Starts SMAC}
+\title{Starts SMAC (alternative)}
 \usage{
 rsmac(fun, scenario, params = NULL, path.to.smac = "~/bin/smac",
   cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1,
