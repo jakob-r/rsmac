@@ -22,7 +22,7 @@ test_that("rsmac can continue", {
   parallelMap::parallelStartMulticore(cpus = ncpus)
   parsmac = function(i){
     this.cl.args = c(cont.cl.args, seed = i)
-    rsmac(fun, scenario = scenario, cl.args = this.cl.args, id.smac.run = "continue", cleanup = FALSE, par.id = i)
+    rsmac(fun, scenario = scenario, cl.args = this.cl.args, id.smac.run = "continue", cleanup = FALSE, par.id = i+1)
   }
   res = parallelMap::parallelMap(parsmac, i = 1:ncpus)
   parallelMap::parallelStop()
