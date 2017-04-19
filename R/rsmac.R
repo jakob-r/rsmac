@@ -89,7 +89,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   writeRDS(register, file.path(rsmac.dir, "register.rds"))
 
   # write initial dob file
-  writeRDS(0, file.path(rsmac.dir, "dob_0.rds"))
+  writeRDS(0, file.path(rsmac.dir, sprintf("dob_%.6i.rds", 0)))
 
 
   # take care of cleanup
