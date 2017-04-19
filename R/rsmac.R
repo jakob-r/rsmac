@@ -128,7 +128,11 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     path.to.smac,
     stri_paste(names(cl.args), cl.args, collapse = " --", sep = " "),
     cl.output.file)
-  system(command, wait = TRUE, ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
+  call.res = system(command, wait = TRUE, ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
+
+  if (call.res != 0) {
+    stopf("Call of '%s' ended with ERROR CODE %s", command, as.character(call.res))
+  }
 
   # Write OptPath
   opt.path = makeOptPathDF(par.set = getParamSet(fun), y.names = "y", minimize = shouldBeMinimized(fun), include.exec.time = TRUE)
