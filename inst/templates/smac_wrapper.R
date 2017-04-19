@@ -56,4 +56,4 @@ rsmac:::writeRDS(dob + 1, file.path(write.path, sprintf("dob_%.6i.rds", dob + 1)
 rsmac:::removeFile(file.path(write.path, old.dob.file))
 
 # Output result for SMAC.
-cat(sprintf("Result for SMAC: %s, %s, 0, %f, %s", status, runtime, y, extra))
+cat(sprintf("Result for SMAC: %s, %s, 0, %f, %s\n", status, runtime, y, extra))
