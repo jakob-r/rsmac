@@ -16,6 +16,7 @@
 #'   Should all files be deleted after the run?
 #' @param par.id [\code{integer(1)}] \cr
 #'   For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.
+#'   Only the call with \code{par.id = 1} will write the enviroment to the disk.
 #' @examples
 #'  \dontrun{
 #'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
@@ -80,8 +81,11 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
 
   # write enviroment for the smac_wrapper
   enviroment.file = file.path(rsmac.dir, "enviroment.RData")
-  if (!file.exists(enviroment.file)) {
-    Sys.sleep(par.id - 1) * 2
+  if (par.id > 1) {
+    while (!file.exists(enviroment.file)) {
+      Sys.sleep(0.5)
+    }
+  } else {
     save.image(enviroment.file)
   }
 
