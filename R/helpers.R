@@ -2,14 +2,22 @@ writeRDS = function(object, file) {
   if (file.exists(file))
     file.remove(file)
   saveRDS(object, file = file)
-  while(!file.exists(file)) Sys.sleep(0.5)
+  waitUntilExists(file)
   invisible(TRUE)
 }
 
 removeFile = function(file) {
   file.remove(file)
-  while(file.exists(file)) Sys.sleep(0.5)
+  waitUntilVanishes(file)
   invisible(TRUE)
+}
+
+waitUntilExists = function(file, negate) {
+  while(!file.exists(file)) Sys.sleep(0.5)
+}
+
+waitUntilVanishes = function(file, negate) {
+  while(file.exists(file)) Sys.sleep(0.5)
 }
 
 parseArgs = function(args, par.set) {

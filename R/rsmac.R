@@ -32,6 +32,14 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   assertList(scenario)
   assertFlag(cleanup)
 
+  if (par.id > 1 && is.null(id.smac.run)) {
+    stop("For a par.id > 1 you have to supply a id.smac.run!")
+  }
+
+  if (par.id > 1 && cleanup) {
+    stop("Parallel runs can not run with automatic cleanup!s")
+  }
+
   if (is.null(params)) {
     params = as.pcs(obj = getParamSet(fun))
   }
@@ -48,7 +56,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   }
   assertString(id.smac.run)
   rsmac.dir = file.path(path.to.smac, sprintf("rsmac_%s", id.smac.run))
-  dir.create(rsmac.dir)
+  if (par.id > 1) waitUntilExists(rsmac.dir) else dir.create(rsmac.dir)
   scenario.name = sprintf("rsmac-scenario-%s", id.smac.run)
   scenario.file = file.path(rsmac.dir, sprintf("%s.txt", scenario.name))
 
@@ -58,9 +66,13 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     "algo" = sprintf("%s -id.smac.run %s", file.path(rsmac.dir, "smac_wrapper.R"), id.smac.run)
   )
   scenario = insert(default.scenario, scenario)
-  writeLines(
-    stri_paste(names(scenario), scenario, sep = " = "),
-    con = scenario.file)
+  if (par.id > 1)
+    waitUntilExists(scenario.file)
+  else {
+    writeLines(
+      stri_paste(names(scenario), scenario, sep = " = "),
+      con = scenario.file)
+  }
 
   # deal with CL args
   default.cl.args = list(
@@ -72,32 +84,33 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   assertList(cl.args, min.len = 1L)
 
   # write params file
-  writeLines(params, con = file.path(rsmac.dir, "rsmac-params.pcs"))
+  params.file = file.path(rsmac.dir, "rsmac-params.pcs")
+  if (par.id > 1) waitUntilExists(params.file) else writeLines(params, con = params.file)
 
   # write rscript to be called from smoof that wraps the
   template.file = system.file("templates/smac_wrapper.R", package = "rsmac")
-  file.copy(template.file, file.path(rsmac.dir, "smac_wrapper.R"), overwrite = TRUE)
-  system(sprintf("chmod +x %s", file.path(rsmac.dir, "smac_wrapper.R")))
+  script.file = file.path(rsmac.dir, "smac_wrapper.R")
+  if (par.id > 1)
+    waitUntilExists(script.file)
+  else {
+    file.copy(template.file, script.file, overwrite = TRUE)
+    system(sprintf("chmod +x %s", file.path(rsmac.dir, "smac_wrapper.R")))
+  }
 
   # write enviroment for the smac_wrapper
   enviroment.file = file.path(rsmac.dir, "enviroment.RData")
-  if (par.id > 1) {
-    while (!file.exists(enviroment.file)) {
-      Sys.sleep(0.5)
-    }
-  } else {
-    save.image(enviroment.file)
-  }
+  if (par.id > 1) waitUntilExists(enviroment.file) else save.image(enviroment.file)
 
   # write register for the smac_wrapper
   register = list(
     packages = names(sessionInfo()$otherPkgs),
-    fun = fun
-    )
-  writeRDS(register, file.path(rsmac.dir, "register.rds"))
+    fun = fun)
+  register.file = file.path(rsmac.dir, "register.rds")
+  if (par.id > 1) waitUntilExists(register.file) else writeRDS(register, register.file)
 
   # write initial dob file
-  writeRDS(0, file.path(rsmac.dir, sprintf("dob_%.6i.rds", 0)))
+  init.dob.file = file.path(rsmac.dir, sprintf("dob_%.6i.rds", 0))
+  if (par.id > 1) waitUntilExists(init.dob.file) else writeRDS(0, init.dob.file)
 
 
   # take care of cleanup
