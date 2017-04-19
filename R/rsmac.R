@@ -79,7 +79,11 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   system(sprintf("chmod +x %s", file.path(rsmac.dir, "smac_wrapper.R")))
 
   # write enviroment for the smac_wrapper
-  save.image(file.path(rsmac.dir, "enviroment.RData"))
+  enviroment.file = file.path(rsmac.dir, "enviroment.RData")
+  if (!file.exists(enviroment.file)) {
+    Sys.sleep(par.id - 1) * 2
+    save.image(enviroment.file)
+  }
 
   # write register for the smac_wrapper
   register = list(
