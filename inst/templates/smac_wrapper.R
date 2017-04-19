@@ -15,7 +15,7 @@ load(file.path(write.path, "enviroment.RData"))
 # load packages
 register = readRDS(file.path(write.path, "register.rds"))
 for (package in register$packages) {
-  library(package, character.only = TRUE)
+  library(package, character.only = TRUE, quietly = TRUE)
 }
 
 status = "SUCCESS"
