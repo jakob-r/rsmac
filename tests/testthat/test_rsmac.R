@@ -13,6 +13,8 @@ test_that("very basic rsmac works", {
   expect_equal(getOptPathLength(res), 10)
   expect_equal(nrow(unique(getOptPathX(res))), 10)
   expect_equal(apply(getOptPathX(res), 1, fun), getOptPathY(res))
+  expect_equal(attr(res, "par.id"), 1)
+  expect_directory_exists(attr(res, "rsmac.dir"))
 })
 
 test_that("rsmac wit as.pcs works", {

@@ -120,5 +120,8 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   for (opt.el in opt.els) {
     addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time)
   }
-  return(opt.path)
+  res = opt.path
+  attr(res, "rsmac.dir") = rsmac.dir
+  attr(res, "par.id") = par.id
+  return(res)
 }
