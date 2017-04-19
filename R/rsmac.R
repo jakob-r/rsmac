@@ -31,6 +31,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   assertClass(fun, "smoof_function")
   assertList(scenario)
   assertFlag(cleanup)
+  assertCount(par.id)
 
   if (par.id > 1 && is.null(id.smac.run)) {
     stop("For a par.id > 1 you have to supply a id.smac.run!")
