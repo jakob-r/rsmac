@@ -23,9 +23,13 @@ test_that("rsmac wit as.pcs works", {
     unlink("~/bin/smac/smac-output/rsmac-scenario-autopcs", recursive = TRUE)
   })
   fun = makeAlpine01Function(10)
-  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 10)
-  res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "autopcs")
+  scenario = list("use-instances" = "false", runObj = "QUALITY", "wallclock-limit" = 5)
+  time = system.time({
+    res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "autopcs")
+  })
+  expect_true(time["elapsed"] > 5)
+  expect_true(time["elapsed"] < 5 + 5)
   expect_class(res, "OptPath")
-  expect_equal(getOptPathLength(res), 10)
+  expect_true(getOptPathLength(res) > 3)
 })
 
