@@ -136,7 +136,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   }
 
   # Write OptPath
-  opt.path = makeOptPathDF(par.set = getParamSet(fun), y.names = "y", minimize = shouldBeMinimized(fun), include.exec.time = TRUE)
+  opt.path = makeOptPathDF(par.set = getParamSet(fun), y.names = "y", minimize = shouldBeMinimized(fun), include.exec.time = TRUE, include.extra = TRUE)
 
   opt.el.files = list.files(
         path = rsmac.dir,
@@ -144,7 +144,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
         full.names = TRUE)
   opt.els = lapply(opt.el.files, readRDS)
   for (opt.el in opt.els) {
-    addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time)
+    addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time, extra = opt.el$extras)
   }
   res = opt.path
   attr(res, "rsmac.dir") = rsmac.dir

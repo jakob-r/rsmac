@@ -48,7 +48,7 @@ extra = 0
 # write opt path line
 args.df = do.call(cbind.data.frame, args)
 x = dfRowToList(args.df, par.set = getParamSet(fun), i = 1)
-op.res = list(x = x, y = y, dob = dob, exec.time = runtime)
+op.res = list(x = x, y = y, dob = dob, exec.time = runtime, extras = list(exec.timestamp = as.integer(start.time)))
 rsmac:::writeRDS(op.res, file.path(write.path, sprintf("res_%.6i_%i.rds", dob, id)))
 
 # increase dob
