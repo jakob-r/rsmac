@@ -17,6 +17,8 @@
 #' @param par.id [\code{integer(1)}] \cr
 #'   For parallel usage on the same id.smac.run this helps to specify the which parallel run we are in.
 #'   Only the call with \code{par.id = 1} will write the enviroment to the disk.
+#' @param communication.method [\code{character(1)}] \cr
+#'   How should the R function called from SMAC communicate with the main function?
 #' @examples
 #'  \dontrun{
 #'  scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 5)
@@ -27,11 +29,12 @@
 #'  }
 #' @return \link[ParamHelpers]{OptPath}
 #' @export
-rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1) {
+rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1, communication.method = "disk") {
   assertClass(fun, "smoof_function")
   assertList(scenario)
   assertFlag(cleanup)
   assertCount(par.id)
+  assertChoice(communication.method, choices = c("disk", "socker"))
 
   if (par.id > 1 && is.null(id.smac.run)) {
     stop("For a par.id > 1 you have to supply a id.smac.run!")
