@@ -33,12 +33,27 @@ test_that("rsmac wit as.pcs works", {
   expect_true(getOptPathLength(res) > 3)
 })
 
-test_that("rsmac wit as.pcs works with discretes", {
+test_that("rsmac wit as.pcs works with more param spaces", {
   on.exit({
     unlink("~/bin/smac/rsmac_autopcs", recursive = TRUE)
     unlink("~/bin/smac/smac-output/rsmac-scenario-autopcs", recursive = TRUE)
   })
-  fun = makeSwiler2014Function()
+  fun = function(x) {
+    assertInt(x$i, lower = -1, upper = 2)
+    assertChoice(x$c, c("a", "b"))
+    assertNumber(x$r)
+    if (x$c == "a") {
+      x$r^x$i
+    } else {
+      sin(x$r) + cos(x$i) + 1
+    }
+  }
+  ps = makeParamSet(
+    makeDiscreteParam("c", c("a", "b")),
+    makeIntegerParam("i", lower = -1, upper = 2),
+    makeNumericParam("r", lower = 2^-15, upper = 3.4555e+15)
+  )
+  fun = makeSingleObjectiveFunction(id = "test", fn = fun, par.set = ps, has.simple.signature = FALSE)
   scenario = list("use-instances" = "false", runObj = "QUALITY", "wallclock-limit" = 5)
   time = system.time({
     res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "autopcs2")
@@ -48,5 +63,4 @@ test_that("rsmac wit as.pcs works with discretes", {
   expect_class(res, "OptPath")
   expect_true(getOptPathLength(res) > 3)
 })
-
 

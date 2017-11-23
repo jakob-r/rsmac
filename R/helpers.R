@@ -32,6 +32,12 @@ parseArgs = function(args, par.set) {
     type = par.types[id]
     if (type == "numeric") {
       res[[id]] = as.numeric(res[[id]])
+    } else if (type == "integer") {
+      res[[id]] = as.integer(res[[id]])
+    } else if (type == "factor") {
+      res[[id]] = as.character(res[[id]])
+    } else {
+      stop("Not supported type for param id %s", id)
     }
   }
   return(res)

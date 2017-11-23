@@ -11,6 +11,12 @@ as.pcs.Param = function(obj) {
   lower = getLower(obj)
   upper = getUpper(obj)
   id = getParamIds(obj, repeated = TRUE, with.nr = TRUE)
+  if (hasTrafo(obj)) {
+    stopf("Trafo in param %s not supported currently.", id)
+  }
+  if (hasRequires(obj)) {
+    stopf("Requirements in param %s not supported currently.", id)
+  }
   type = switch(
     obj$type,
     numericvector = "real",
@@ -27,7 +33,7 @@ as.pcs.Param = function(obj) {
   lines = character(length(id))
   for (i in seq_along(id)) {
     if (type[i] %in% c("real", "integer")) {
-      lines[i] = sprintf("%s %s [%f,%f] [%f]", id[i], type[i], lower[i], upper[i], default[i])
+      lines[i] = sprintf("%s %s [%g,%g] [%g]", id[i], type[i], lower[i], upper[i], default[i])
     } else if (type[i] %in% c("categorical")) {
       lines[i] = sprintf("%s %s {%s} [%s]", id[i], type[i], stri_paste(values, collapse = ", "), default[i])
     } else {
