@@ -6,11 +6,29 @@ use smac for r functions
 
 ## Installation
 
-``` r
+```r
 devtools::install_github("jakob-r/rsmac")
 # if smac is not installed you can run:
 rsmac:::installSmac()
 ```
+
+## Usage
+
+```r
+fun = makeSingleObjectiveFunction(
+  name = "my_sphere",
+  fn = function(x) {
+    sum(x*x) + 7
+  },
+  par.set = makeParamSet(
+    makeNumericVectorParam("x", len = 2L, lower = -5, upper = 5)
+  ),
+  minimize = TRUE
+)
+scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 10)
+res = rsmac(fun, scenario = scenario)
+```
+To see how to set up your scenario check the [smac manual](http://www.cs.ubc.ca/labs/beta/Projects/SMAC/v2.10.03/manual.pdf).
 
 ## Notes
 
