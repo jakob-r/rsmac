@@ -33,3 +33,20 @@ test_that("rsmac wit as.pcs works", {
   expect_true(getOptPathLength(res) > 3)
 })
 
+test_that("rsmac wit as.pcs works with discretes", {
+  on.exit({
+    unlink("~/bin/smac/rsmac_autopcs", recursive = TRUE)
+    unlink("~/bin/smac/smac-output/rsmac-scenario-autopcs", recursive = TRUE)
+  })
+  fun = makeSwiler2014Function()
+  scenario = list("use-instances" = "false", runObj = "QUALITY", "wallclock-limit" = 5)
+  time = system.time({
+    res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "autopcs2")
+  })
+  expect_true(time["elapsed"] > 5)
+  expect_true(time["elapsed"] < 5 + 5)
+  expect_class(res, "OptPath")
+  expect_true(getOptPathLength(res) > 3)
+})
+
+

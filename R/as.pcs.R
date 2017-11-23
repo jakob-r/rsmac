@@ -15,7 +15,9 @@ as.pcs.Param = function(obj) {
     obj$type,
     numericvector = "real",
     discrete = "categorical",
-    numeric = "real")
+    numeric = "real",
+    integer = "integer",
+    integer = "integervector")
   type = rep(type, length(id))
   default = getDefaults(obj, include.null = TRUE)
   values = getValues(obj)
@@ -24,10 +26,13 @@ as.pcs.Param = function(obj) {
   }
   lines = character(length(id))
   for (i in seq_along(id)) {
-    if (type[i] %in% c("real"))
+    if (type[i] %in% c("real", "integer")) {
       lines[i] = sprintf("%s %s [%f,%f] [%f]", id[i], type[i], lower[i], upper[i], default[i])
-    else
-      lines[i] = sprintf("%s %s {%s} [%s]", id[i], type[i], stri_paste(values, sep = ", "), default[i])
+    } else if (type[i] %in% c("categorical")) {
+      lines[i] = sprintf("%s %s {%s} [%s]", id[i], type[i], stri_paste(values, collapse = ", "), default[i])
+    } else {
+      stopf("Not supported type %s", type[i])
+    }
   }
   return(lines)
 }
