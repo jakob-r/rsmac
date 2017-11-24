@@ -33,6 +33,9 @@ cat(sprintf("Start Evaluation with id %i and dob %i\n", id, dob))
 # evaluate function
 fun = register$fun
 args = rsmac:::parseArgs(args, par.set = getParamSet(fun))
+if (register$apply.trafo) {
+  args = trafoValue(par = getParamSet(fun), x = args)
+}
 
 start.time = Sys.time()
 y = fun(args)

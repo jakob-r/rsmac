@@ -42,9 +42,11 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   }
 
   if (is.null(params)) {
-    params = as.pcs(obj = getParamSet(fun))
+    pcs = as.pcs(obj = getParamSet(fun))
+  } else {
+    pcs = assertCharacter(params)  
   }
-  assertCharacter(params)
+  
   path.to.smac = path.expand(path.to.smac)
   assertFileExists(file.path(path.to.smac, "smac"))
 
@@ -86,7 +88,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
 
   # write params file
   params.file = file.path(rsmac.dir, "rsmac-params.pcs")
-  if (par.id > 1) waitUntilExists(params.file) else writeLines(params, con = params.file)
+  if (par.id > 1) waitUntilExists(params.file) else writeLines(pcs, con = params.file)
 
   # write rscript to be called from smoof that wraps the
   template.file = system.file("templates/smac_wrapper.R", package = "rsmac")
@@ -105,7 +107,8 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   # write register for the smac_wrapper
   register = list(
     packages = names(sessionInfo()$otherPkgs),
-    fun = fun)
+    fun = fun,
+    apply.trafo = hasTrafo(getParamSet(fun)) && is.null(pcs))
   register.file = file.path(rsmac.dir, "register.rds")
   if (par.id > 1) waitUntilExists(register.file) else writeRDS(register, register.file)
 
@@ -144,7 +147,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
         full.names = TRUE)
   opt.els = lapply(opt.el.files, readRDS)
   for (opt.el in opt.els) {
-    addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time, extra = opt.el$extras)
+    addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time, extra = opt.el$extras, check.feasible = hasTrafo(getParamSet(fun)) && !is.null(pcs))
   }
   res = opt.path
   attr(res, "rsmac.dir") = rsmac.dir

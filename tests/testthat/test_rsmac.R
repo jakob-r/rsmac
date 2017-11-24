@@ -99,3 +99,51 @@ test_that("rsmac with hierarchical params", {
   expect_true(getOptPathLength(res) > 3)
 })
 
+test_that("rsmac handles trafos", {
+  on.exit({
+    unlink("~/bin/smac/rsmac_trafos", recursive = TRUE)
+    unlink("~/bin/smac/smac-output/rsmac-scenario-trafos", recursive = TRUE)
+  })
+  fun = function(x) {
+    assertNumber(x$a, lower = -5, upper = 5)
+    x$a^2
+  }
+  ps = makeParamSet(
+    makeNumericParam("a", lower = -105, upper = -95, trafo = function(x) x+100)
+  )
+  fun = makeSingleObjectiveFunction(id = "test", fn = fun, par.set = ps, has.simple.signature = FALSE)
+  scenario = list("use-instances" = "false", runObj = "QUALITY", "wallclock-limit" = 5)
+  time = system.time({
+    res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "trafos")
+  })
+  expect_true(time["elapsed"] > 5)
+  expect_true(time["elapsed"] < 5 + 5)
+  expect_class(res, "OptPath")
+  expect_true(getOptPathLength(res) > 3)
+})
+
+test_that("rsmac ignores trafos when pcs is passed", {
+  on.exit({
+    unlink("~/bin/smac/rsmac_trafos2", recursive = TRUE)
+    unlink("~/bin/smac/smac-output/rsmac-scenario-trafos2", recursive = TRUE)
+  })
+  fun = function(x) {
+    assertNumber(x$a, lower = -5, upper = 5)
+    x$a^2
+  }
+  ps = makeParamSet(
+    makeNumericParam("a", lower = -105, upper = -95, trafo = function(x) x+100)
+  )
+  params = c(
+    "a real [-5 , 5] [0]"
+  )
+  fun = makeSingleObjectiveFunction(id = "test", fn = fun, par.set = ps, has.simple.signature = FALSE)
+  scenario = list("use-instances" = "false", runObj = "QUALITY", "wallclock-limit" = 5)
+  time = system.time({
+    res = rsmac(fun, scenario = scenario, cleanup = FALSE, id.smac.run = "trafos")
+  })
+  expect_true(time["elapsed"] > 5)
+  expect_true(time["elapsed"] < 5 + 5)
+  expect_class(res, "OptPath")
+  expect_true(getOptPathLength(res) > 3)
+})
