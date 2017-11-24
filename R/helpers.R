@@ -30,6 +30,9 @@ parseArgs = function(args, par.set) {
   res = setNames(res, ids)
   for (id in ids) {
     type = par.types[id]
+    if (!isTRUE(nzchar(res[[id]]))) {
+      res[[id]] = NA
+    }
     if (type == "numeric") {
       res[[id]] = as.numeric(res[[id]])
     } else if (type == "integer") {

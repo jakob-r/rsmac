@@ -51,7 +51,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   # generate unqiue scenario name and sub folders
   if (is.null(id.smac.run)) {
     id.smac.run = stri_paste(
-      format(Sys.time(), "%F_%H-%M"),
+      getID(fun),
       "_",
       (sample(999999, size = 1) + as.integer(Sys.time()) + Sys.getpid()) %% 999999)
   }
