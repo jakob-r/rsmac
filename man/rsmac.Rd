@@ -8,13 +8,15 @@ rsmac(fun, scenario, params = NULL, path.to.smac = "~/bin/smac",
   cl.args = list(), id.smac.run = NULL, cleanup = TRUE, par.id = 1)
 }
 \arguments{
-\item{fun}{[\code{smoof_function}]}
+\item{fun}{[\code{smoof_function}]
+NOTE: If the \code{par.set} of the smoof function has trafos they will be invisible for SMAC and only be applied after SMAC proposed values within the untransforemd range.}
 
 \item{scenario}{[\code{list}] \cr
 scenario description}
 
 \item{params}{[\code{character}] \cr
-Params in pcs format. Default is \code{\link{as.pcs}(getParamSet(fun))}.}
+Params in pcs format. Default is \code{\link{as.pcs}(getParamSet(fun))}.
+If \code{params} are supplied the trafos of the par.set of the smoof function will not be applied.}
 
 \item{path.to.smac}{[\code{character(1)}] \cr
 The directory where the smac binary is located.

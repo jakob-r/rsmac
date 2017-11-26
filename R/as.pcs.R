@@ -11,9 +11,6 @@ as.pcs.Param = function(obj) {
   lower = getLower(obj)
   upper = getUpper(obj)
   id = getParamIds(obj, repeated = TRUE, with.nr = TRUE)
-  if (hasTrafo(obj)) {
-    stopf("Trafo in param %s not supported currently.", id)
-  }
   if (hasRequires(obj)) {
     stopf("Requirements in param %s not supported currently.", id)
   }

@@ -1,10 +1,12 @@
 #' @title Starts SMAC (alternative)
 #' @description Starts SMAC on the given function, with the given scenario and the given params.
 #' @param fun [\code{smoof_function}]
+#'   NOTE: If the \code{par.set} of the smoof function has trafos they will be invisible for SMAC and only be applied after SMAC proposed values within the untransforemd range.
 #' @param scenario [\code{list}] \cr
 #'   scenario description
 #' @param params [\code{character}] \cr
 #'   Params in pcs format. Default is \code{\link{as.pcs}(getParamSet(fun))}.
+#'   If \code{params} are supplied the trafos of the par.set of the smoof function will not be applied.
 #' @param path.to.smac [\code{character(1)}] \cr
 #'   The directory where the smac binary is located.
 #'   All intermediate files will be saved there.
@@ -45,6 +47,9 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     pcs = as.pcs(obj = getParamSet(fun))
   } else {
     pcs = assertCharacter(params)  
+    if (hasTrafo(getParamSet(fun))) {
+      warning("The par.set of the smoof function has a transformation. Those will be ignored because pcs params were supplied.")
+    }
   }
   
   path.to.smac = path.expand(path.to.smac)
@@ -84,7 +89,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
     "num-validation-runs" = 0
   )
   cl.args = insert(default.cl.args, cl.args)
-  assertList(cl.args, min.len = 1L)
+  assertList(cl.args, min.len = 1L, names = "named")
 
   # write params file
   params.file = file.path(rsmac.dir, "rsmac-params.pcs")
@@ -108,14 +113,14 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
   register = list(
     packages = names(sessionInfo()$otherPkgs),
     fun = fun,
-    apply.trafo = hasTrafo(getParamSet(fun)) && is.null(pcs))
+    apply.trafo = is.null(params)
+  )
   register.file = file.path(rsmac.dir, "register.rds")
   if (par.id > 1) waitUntilExists(register.file) else writeRDS(register, register.file)
 
   # write initial dob file
   init.dob.file = file.path(rsmac.dir, sprintf("dob_%.6i.rds", 0))
   if (par.id > 1) waitUntilExists(init.dob.file) else writeRDS(0, init.dob.file)
-
 
   # take care of cleanup
   if (cleanup) {
@@ -147,7 +152,7 @@ rsmac = function(fun, scenario, params = NULL, path.to.smac = "~/bin/smac", cl.a
         full.names = TRUE)
   opt.els = lapply(opt.el.files, readRDS)
   for (opt.el in opt.els) {
-    addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time, extra = opt.el$extras, check.feasible = hasTrafo(getParamSet(fun)) && !is.null(pcs))
+    addOptPathEl(op = opt.path, x = opt.el$x, y = opt.el$y, dob = opt.el$dob, exec.time = opt.el$exec.time, extra = opt.el$extras, check.feasible = is.null(params))
   }
   res = opt.path
   attr(res, "rsmac.dir") = rsmac.dir

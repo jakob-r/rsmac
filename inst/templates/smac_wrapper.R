@@ -8,7 +8,6 @@ args = tail(args, -2)
 
 write.path = sprintf("rsmac_%s", id.smac.run)
 
-
 # read r environment
 load(file.path(write.path, "enviroment.RData"))
 
@@ -32,13 +31,16 @@ cat(sprintf("Start Evaluation with id %i and dob %i\n", id, dob))
 
 # evaluate function
 fun = register$fun
-args = rsmac:::parseArgs(args, par.set = getParamSet(fun))
-if (register$apply.trafo) {
-  args = trafoValue(par = getParamSet(fun), x = args)
+x = rsmac:::parseArgs(args, par.set = getParamSet(fun))
+
+if (register$apply.trafo && hasTrafo(getParamSet(fun))) {
+  x.trafo = trafoValue(par = getParamSet(fun), x = x)
+} else {
+  x.trafo = x
 }
 
 start.time = Sys.time()
-y = fun(args)
+y = fun(x.trafo)
 end.time = Sys.time()
 if (hasAttributes(y, "exec.time")) {
   runtime = attr(y, "exec.time")
@@ -49,8 +51,6 @@ y = y
 extra = 0
 
 # write opt path line
-args.df = do.call(cbind.data.frame, args)
-x = dfRowToList(args.df, par.set = getParamSet(fun), i = 1)
 op.res = list(x = x, y = y, dob = dob, exec.time = runtime, extras = list(exec.timestamp = as.integer(start.time)))
 rsmac:::writeRDS(op.res, file.path(write.path, sprintf("res_%.6i_%i.rds", dob, id)))
 
