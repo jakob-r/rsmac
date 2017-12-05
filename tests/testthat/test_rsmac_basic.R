@@ -44,17 +44,17 @@ test_that("rsmac wit as.pcs works with more param spaces", {
   fun = function(x) {
     assertInt(x$i, lower = -1, upper = 2)
     assertChoice(x$c, c("a", "b"))
-    assertNumber(x$r)
+    assertNumeric(x$r)
     if (x$c == "a") {
-      x$r^x$i
+      sum(x$r)^x$i
     } else {
-      sin(x$r) + cos(x$i) + 1
+      sin(sum(x$r)) + cos(x$i) + 1
     }
   }
   ps = makeParamSet(
     makeDiscreteParam("c", c("a", "b")),
     makeIntegerParam("i", lower = -1, upper = 2),
-    makeNumericParam("r", lower = 2^-15, upper = 3.4555e+15)
+    makeNumericVectorParam("r", len = 2, lower = 2^-15, upper = 3.4555e+15)
   )
   fun = makeSingleObjectiveFunction(id = "test", fn = fun, par.set = ps, has.simple.signature = FALSE)
   scenario = list("use-instances" = "false", runObj = "QUALITY", numberOfRunsLimit = 10)

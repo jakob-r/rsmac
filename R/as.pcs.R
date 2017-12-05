@@ -42,5 +42,6 @@ as.pcs.Param = function(obj) {
 
 #' @export
 as.pcs.ParamSet = function(obj){
-  sapply(obj$pars, as.pcs)
+  res = sapply(obj$pars, as.pcs)
+  unlist(res)
 }
