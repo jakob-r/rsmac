@@ -8,7 +8,8 @@ unlink("~/bin/smac/rsmac_autopcs", recursive = TRUE)
 unlink("~/bin/smac/smac-output/rsmac-scenario-autopcs", recursive = TRUE)
 
 test_that("smac can be downloaded and installed", {
-  if (!file.exists("~/bin/smac/smac"))
-    installSmac()
-  expect_true(file.exists("~/bin/smac/smac"))
+  smac.path = "~/bin/smac"
+  if (!file.exists(smac.path))
+    installSmac(smac.path)
+  expect_true(file.exists(file.path(smac.path, "smac")))
 })
